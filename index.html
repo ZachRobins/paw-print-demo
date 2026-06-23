@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paw Print — Pet Vaccination Records (Prototype)</title>
+<style>
+  :root{
+    --bg:#f3f6f4; --card:#ffffff; --ink:#1d2b27; --muted:#5e6e69;
+    --green:#2f8f7d; --green-d:#246b5e; --green-l:#e3f1ed;
+    --amber:#e09a3e; --amber-l:#fbf0db; --red:#c0573f; --red-l:#f7e3dd;
+    --line:#e3e9e6; --shadow:0 6px 22px rgba(31,45,42,.08); --r:16px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:760px; margin:0 auto; padding:0 18px 64px}
+  /* Top bar */
+  .topbar{display:flex; align-items:center; justify-content:space-between; padding:16px 18px; max-width:760px; margin:0 auto}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:800; font-size:20px; letter-spacing:-.3px; color:var(--green-d)}
+  .brand svg{width:30px; height:30px}
+  .who{font-size:13px; color:var(--muted); display:flex; align-items:center; gap:12px}
+  .who button{font-size:13px}
+  /* Buttons */
+  button{font-family:inherit; cursor:pointer; border:none; border-radius:12px; font-size:15px; font-weight:600; padding:12px 18px; transition:.15s}
+  button:active{transform:translateY(1px)}
+  .btn{background:var(--green); color:#fff}
+  .btn:hover{background:var(--green-d)}
+  .btn-lg{width:100%; padding:16px; font-size:16px}
+  .btn-ghost{background:var(--green-l); color:var(--green-d)}
+  .btn-ghost:hover{background:#d5e9e2}
+  .btn-line{background:#fff; color:var(--green-d); border:1.5px solid var(--green); }
+  .btn-soft{background:#eef2f0; color:var(--ink)}
+  .link{background:none; color:var(--green-d); text-decoration:underline; padding:6px 0; font-weight:600}
+  /* Cards */
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow); padding:20px; margin:14px 0}
+  .hero{background:linear-gradient(160deg,#2f8f7d,#246b5e); color:#fff; border:none; text-align:center; padding:30px 24px}
+  .hero h1{margin:.2em 0 .15em; font-size:26px; letter-spacing:-.4px}
+  .hero p{margin:0 auto; max-width:430px; opacity:.94; font-size:15px}
+  h2{font-size:19px; margin:18px 2px 6px; letter-spacing:-.3px}
+  .sub{color:var(--muted); font-size:14px; margin:0 2px 12px}
+  label{display:block; font-weight:600; font-size:14px; margin:14px 0 6px}
+  input,select{width:100%; font-family:inherit; font-size:16px; padding:13px 14px; border:1.5px solid var(--line); border-radius:12px; background:#fff; color:var(--ink)}
+  input:focus,select:focus{outline:none; border-color:var(--green)}
+  .row{display:flex; gap:10px; flex-wrap:wrap}
+  .row>*{flex:1; min-width:0}
+  /* Pet card */
+  .pet{display:flex; gap:14px; align-items:center; padding:16px; border:1px solid var(--line); border-radius:14px; margin:10px 0; background:#fff}
+  .avatar{width:56px; height:56px; border-radius:14px; background:var(--green-l); display:flex; align-items:center; justify-content:center; font-size:30px; flex:none; overflow:hidden}
+  .avatar img{width:100%; height:100%; object-fit:cover}
+  .pet .meta{flex:1; min-width:0}
+  .pet .meta b{font-size:17px}
+  .pet .acts{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+  .pet .acts button{padding:9px 14px; font-size:13px; border-radius:10px}
+  .badge{display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700; padding:4px 10px; border-radius:999px}
+  .ok{background:var(--green-l); color:var(--green-d)}
+  .warn{background:var(--amber-l); color:#9a6512}
+  .none{background:#eef2f0; color:var(--muted)}
+  .src{background:var(--green-l); color:var(--green-d); font-size:11.5px; font-weight:700; padding:3px 9px; border-radius:999px}
+  .person{display:flex; align-items:center; gap:14px; padding:15px 16px; border:1px solid var(--line); border-radius:14px; margin:10px 0; background:#fff; cursor:pointer}
+  .person:hover{border-color:var(--green); background:#fbfdfc}
+  .person .chev{margin-left:auto; color:var(--muted); font-size:22px}
+  .banner{background:var(--amber-l); border:1px solid #f0dcb6; color:#7d551a; padding:12px 14px; border-radius:12px; font-size:13.5px; margin:12px 0}
+  .empty{text-align:center; color:var(--muted); padding:26px 10px}
+  .empty .big{font-size:40px}
+  .note{font-size:13px; color:var(--muted); margin-top:8px}
+  .back{margin:18px 0 2px}
+  .ribbon{background:#fff5e6; border-bottom:1px solid #f0dcb6; color:#7d551a; font-size:12.5px; text-align:center; padding:7px 14px}
+  .footer{max-width:760px; margin:30px auto 0; padding:18px; color:var(--muted); font-size:12.5px; text-align:center; border-top:1px solid var(--line)}
+  .pill-choose{display:flex; gap:12px; margin-top:6px}
+  .pill-choose button{flex:1; padding:18px 12px; border-radius:14px; border:1.5px solid var(--line); background:#fff; color:var(--ink); font-weight:700; display:flex; flex-direction:column; gap:8px; align-items:center}
+  .pill-choose button:hover{border-color:var(--green); background:#fbfdfc}
+  .pill-choose .ico{font-size:30px}
+  .consent{display:flex; gap:10px; align-items:flex-start; background:#f7faf9; border:1px solid var(--line); border-radius:12px; padding:13px; margin-top:14px; font-size:13.5px; color:var(--muted)}
+  .consent input{width:20px; height:20px; flex:none; margin-top:1px}
+  .preview{margin-top:12px; border:1px dashed var(--line); border-radius:12px; padding:10px; text-align:center; background:#fbfdfc}
+  .preview img{max-width:100%; max-height:260px; border-radius:8px}
+  .preview iframe{width:100%; height:300px; border:none; border-radius:8px}
+  /* Proof sheet */
+  #proofSheet .doc-head{display:flex; align-items:center; justify-content:space-between; border-bottom:2px solid var(--green); padding-bottom:12px; margin-bottom:14px}
+  #proofSheet .doc-head .brand{font-size:18px}
+  .kv{display:flex; gap:10px; margin:7px 0; font-size:15px}
+  .kv b{min-width:120px; color:var(--muted); font-weight:600}
+  .vax{border:1px solid var(--line); border-radius:12px; padding:13px 15px; margin:10px 0}
+  .vax .t{display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap}
+  .verified{display:inline-flex; align-items:center; gap:6px; background:var(--green-l); color:var(--green-d); font-weight:700; font-size:13px; padding:6px 12px; border-radius:999px}
+  .docimg{margin-top:12px; text-align:center}
+  .docimg img{max-width:100%; border:1px solid var(--line); border-radius:10px}
+  .docimg iframe{width:100%; height:420px; border:1px solid var(--line); border-radius:10px}
+  @media (max-width:520px){ .kv{flex-direction:column; gap:0} .kv b{min-width:0} }
+  @media print{
+    body{background:#fff}
+    .topbar,.ribbon,.footer,.no-print{display:none !important}
+    .wrap{padding:0}
+    .card{box-shadow:none; border:none; margin:0}
+  }
+</style>
+</head>
+<body>
+<div class="ribbon">Working prototype · clicking around won't save anything to a server · the real version keeps data encrypted in Canada</div>
+<div class="topbar">
+  <div class="brand">
+    <svg viewBox="0 0 64 64" fill="currentColor" aria-hidden="true">
+      <ellipse cx="20" cy="22" rx="6.5" ry="9"/><ellipse cx="44" cy="22" rx="6.5" ry="9"/>
+      <ellipse cx="11" cy="38" rx="6" ry="8"/><ellipse cx="53" cy="38" rx="6" ry="8"/>
+      <path d="M32 33c-9 0-16 7.5-16 15 0 5 4 8 9 8 3.5 0 5-1.6 7-1.6s3.5 1.6 7 1.6c5 0 9-3 9-8 0-7.5-7-15-16-15z"/>
+    </svg>
+    Paw Print
+  </div>
+  <div class="who" id="who"></div>
+</div>
+<div class="wrap"><div id="app"></div></div>
+<div class="footer">
+  Paw Print — a prototype for Same Sky Collective Society & Four Paws (Kamloops).<br>
+  Records help people keep their animals with them when accessing shelter and supported housing.
+</div>
+
+<script>
+/* ---------- tiny resilient store (memory-first, persists if storage is allowed) ---------- */
+const MEM = {};
+const store = {
+  get(k, fb){ try{ const v = localStorage.getItem(k); return v?JSON.parse(v):(MEM[k]??fb); }catch(e){ return MEM[k]??fb; } },
+  set(k, v){ MEM[k]=v; try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+const uid = ()=> 'x'+Math.random().toString(36).slice(2,9);
+
+/* ---------- sample vaccination certificate (self-contained SVG) ---------- */
+function sampleCert(petName){
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='620' height='420'>
+   <rect width='620' height='420' fill='#ffffff' stroke='#246b5e' stroke-width='4'/>
+   <rect x='14' y='14' width='592' height='392' fill='none' stroke='#cfe3dc' stroke-width='2'/>
+   <text x='40' y='62' font-family='Georgia,serif' font-size='26' fill='#246b5e' font-weight='bold'>Riverside Vet Clinic</text>
+   <text x='40' y='86' font-family='Arial' font-size='13' fill='#5e6e69'>Kamloops, BC  ·  (250) 555-0142</text>
+   <line x1='40' y1='104' x2='580' y2='104' stroke='#e3e9e6' stroke-width='2'/>
+   <text x='40' y='148' font-family='Georgia,serif' font-size='22' fill='#1d2b27' font-weight='bold'>Certificate of Vaccination</text>
+   <text x='40' y='196' font-family='Arial' font-size='15' fill='#1d2b27'>Patient: ${petName} (Canine)</text>
+   <text x='40' y='224' font-family='Arial' font-size='15' fill='#1d2b27'>Vaccine: Rabies (3-year)</text>
+   <text x='40' y='252' font-family='Arial' font-size='15' fill='#1d2b27'>Date given: May 10, 2024</text>
+   <text x='40' y='280' font-family='Arial' font-size='15' fill='#1d2b27'>Next due: May 10, 2027</text>
+   <text x='40' y='308' font-family='Arial' font-size='15' fill='#1d2b27'>Lot #: RB-44912    DVM: Dr. A. Lee</text>
+   <text x='40' y='372' font-family='cursive' font-size='26' fill='#246b5e'>A. Lee, DVM</text>
+   <line x1='40' y1='378' x2='250' y2='378' stroke='#9bb3ab' stroke-width='1'/>
+  </svg>`;
+  return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+}
+
+/* ---------- seed data ---------- */
+function seed(){
+  if(store.get('seeded')) return;
+  const users = {
+    jordan:{id:'jordan', name:'Jordan T.', role:'owner', recoveryHelper:'Sam (Same Sky)'},
+    mara:{id:'mara', name:'Mara P.', role:'owner', recoveryHelper:'Sam (Same Sky)'},
+    sam:{id:'sam', name:'Sam', role:'helper', org:'Same Sky Collective'},
+    dana:{id:'dana', name:'Dana', role:'helper', org:'Riverside Vet Clinic'}
+  };
+  const pets = {
+    p1:{id:'p1', ownerId:'jordan', name:'Biscuit', species:'Dog', photo:null},
+    p2:{id:'p2', ownerId:'mara', name:'Smoke', species:'Cat', photo:null}
+  };
+  const docs = {
+    d1:{id:'d1', petId:'p1', label:'Rabies (3-year)', date:'2024-05-10', expiry:'2027-05-10',
+        source:'Riverside Vet Clinic', fileType:'image', dataUrl: sampleCert('Biscuit')}
+  };
+  const links = [ {helperId:'sam', clientId:'jordan'}, {helperId:'sam', clientId:'mara'} ];
+  store.set('users',users); store.set('pets',pets); store.set('docs',docs);
+  store.set('links',links); store.set('seeded',true);
+}
+
+/* ---------- data helpers ---------- */
+const users = ()=> store.get('users',{});
+const pets  = ()=> store.get('pets',{});
+const docs  = ()=> store.get('docs',{});
+const links = ()=> store.get('links',[]);
+const me = ()=> users()[store.get('session',{}).userId] || null;
+const petsOf = (ownerId)=> Object.values(pets()).filter(p=>p.ownerId===ownerId);
+const docsOf = (petId)=> Object.values(docs()).filter(d=>d.petId===petId);
+const clientsOf = (helperId)=> links().filter(l=>l.helperId===helperId).map(l=>users()[l.clientId]).filter(Boolean);
+
+function vaxStatus(petId){
+  const ds = docsOf(petId);
+  if(!ds.length) return {cls:'none', txt:'No records yet'};
+  const expiries = ds.filter(d=>d.expiry).map(d=>new Date(d.expiry));
+  if(expiries.length){
+    const soonest = new Date(Math.min(...expiries.map(d=>d.getTime())));
+    if(soonest < new Date()) return {cls:'warn', txt:'A record has expired'};
+    return {cls:'ok', txt:`Up to date · ${ds.length} record${ds.length>1?'s':''}`};
+  }
+  return {cls:'ok', txt:`${ds.length} record${ds.length>1?'s':''} on file`};
+}
+const emojiFor = s => s==='Cat'?'🐈':s==='Dog'?'🐕':'🐾';
+
+/* ---------- router ---------- */
+let view = 'landing';
+let ctx = {};         // {petId, clientId, intendedRole}
+let pendingFile = null;
+
+function go(v, c={}){ view=v; ctx={...ctx,...c}; pendingFile=null; render(); }
+function setSession(id){ store.set('session',{userId:id}); }
+function signOut(){ setSession(null); ctx={}; go('landing'); }
+
+/* effective owner = the client a helper is managing, else the logged-in owner */
+function effOwner(){ return ctx.clientId || (me() && me().role==='owner' ? me().id : null); }
+function effOwnerUser(){ return users()[effOwner()]; }
+function isHelper(){ return me() && me().role==='helper'; }
+
+/* ---------- render ---------- */
+const app = ()=> document.getElementById('app');
+function setWho(){
+  const w = document.getElementById('who'); const u = me();
+  if(!u){ w.innerHTML=''; return; }
+  w.innerHTML = `<span>${u.name}${u.org?' · '+u.org:''}</span> <button class="link" id="out">Sign out</button>`;
+  document.getElementById('out').onclick = signOut;
+}
+
+function render(){
+  setWho();
+  const r = {
+    landing: vLanding, ownerHome: vOwnerHome, helperHome: vHelperHome,
+    addPerson: vAddPerson, petList: vPetList, addPet: vAddPet, addDoc: vAddDoc, proof: vProof
+  }[view] || vLanding;
+  app().innerHTML = r();
+  wire();
+  window.scrollTo(0,0);
+}
+
+/* --- Landing / login --- */
+function vLanding(){
+  if(ctx.intendedRole){
+    const role = ctx.intendedRole;
+    const list = Object.values(users()).filter(u=>u.role===role);
+    return `
+    <div class="card">
+      <button class="link back" id="b">← back</button>
+      <h2>${role==='owner'?'Pet owner sign in':'Helper sign in'}</h2>
+      <p class="sub">${role==='owner'
+        ? 'Sign in to see your pet’s records.'
+        : 'For Same Sky staff and vet-clinic volunteers who help people manage records.'}</p>
+      <label>Choose a sample account</label>
+      ${list.map(u=>`<button class="btn-soft btn-lg" style="margin:6px 0;text-align:left" data-login="${u.id}">${u.name}${u.org?' · '+u.org:''}</button>`).join('')}
+      <label style="margin-top:18px">PIN (any 4 digits for the demo)</label>
+      <input id="pin" inputmode="numeric" placeholder="• • • •" maxlength="4">
+      <p class="note">Forgot your PIN? In the real app a Same Sky helper can reset it for you — so a lost phone never means a lost record.</p>
+      <hr style="border:none;border-top:1px solid var(--line);margin:18px 0">
+      <button class="link" id="new">+ Create a new ${role==='owner'?'owner':'helper'} account</button>
+    </div>`;
+  }
+  return `
+  <div class="card hero">
+    <svg viewBox="0 0 64 64" width="42" height="42" fill="#fff" style="opacity:.95">
+      <ellipse cx="20" cy="22" rx="6.5" ry="9"/><ellipse cx="44" cy="22" rx="6.5" ry="9"/>
+      <ellipse cx="11" cy="38" rx="6" ry="8"/><ellipse cx="53" cy="38" rx="6" ry="8"/>
+      <path d="M32 33c-9 0-16 7.5-16 15 0 5 4 8 9 8 3.5 0 5-1.6 7-1.6s3.5 1.6 7 1.6c5 0 9-3 9-8 0-7.5-7-15-16-15z"/>
+    </svg>
+    <h1>Keep your pet's records ready</h1>
+    <p>So you and your animal aren't turned away from shelter or housing when you can't find the paperwork.</p>
+  </div>
+  <div class="card">
+    <h2>How do you want to sign in?</h2>
+    <div class="pill-choose">
+      <button data-role="owner"><span class="ico">🐾</span>I'm a pet owner</button>
+      <button data-role="helper"><span class="ico">🤝</span>I'm a helper<br><span style="font-weight:500;font-size:12px;color:var(--muted)">Same Sky / vet clinic</span></button>
+    </div>
+    <p class="note" style="margin-top:16px">Helpers can create and manage records <b>with a person's consent</b> — useful when someone doesn't have a phone or email.</p>
+  </div>`;
+}
+
+/* --- Owner home --- */
+function vOwnerHome(){
+  return `<h2>Hi ${me().name.split(' ')[0]} 👋</h2>
+    <p class="sub">Your pets and their vaccination records.</p>
+    ${petListHtml(me().id)}
+    <button class="btn btn-lg" id="addpet" style="margin-top:8px">+ Add a pet</button>`;
+}
+
+/* --- Helper home --- */
+function vHelperHome(){
+  const cs = clientsOf(me().id);
+  return `<h2>Hi ${me().name} 🤝</h2>
+    <p class="sub">People you're helping at ${me().org}. Open someone to manage their records.</p>
+    ${cs.length? cs.map(c=>`
+      <div class="person" data-client="${c.id}">
+        <div class="avatar">🧑</div>
+        <div><b>${c.name}</b><div style="color:var(--muted);font-size:13px">${petsOf(c.id).length} pet(s)</div></div>
+        <div class="chev">›</div>
+      </div>`).join('') : `<div class="empty"><div class="big">🤝</div>No one yet.</div>`}
+    <button class="btn btn-lg" id="addperson" style="margin-top:8px">+ Add a person</button>`;
+}
+
+function vAddPerson(){
+  return `<button class="link back" id="b">← back</button>
+    <div class="card">
+      <h2>Add a person you're helping</h2>
+      <p class="sub">Create an account on someone's behalf. They stay the owner of their records.</p>
+      <label>Their name</label>
+      <input id="pname" placeholder="First name / how they'd like to be listed">
+      <div class="consent">
+        <input type="checkbox" id="consent">
+        <span>They've given consent for ${me()?me().org:'this organization'} to create and manage their pet records, and can ask to see or delete them at any time.</span>
+      </div>
+      <button class="btn btn-lg" id="save" style="margin-top:16px">Create account</button>
+    </div>`;
+}
+
+/* --- Pet list (owner view, or helper viewing a client) --- */
+function petListHtml(ownerId){
+  const ps = petsOf(ownerId);
+  if(!ps.length) return `<div class="empty"><div class="big">🐾</div>No pets added yet.</div>`;
+  return ps.map(p=>{
+    const st = vaxStatus(p.id);
+    return `<div class="pet">
+      <div class="avatar">${p.photo?`<img src="${p.photo}">`:emojiFor(p.species)}</div>
+      <div class="meta">
+        <b>${p.name}</b> <span style="color:var(--muted)">· ${p.species}</span>
+        <div style="margin-top:6px"><span class="badge ${st.cls}">${st.cls==='ok'?'✓':st.cls==='warn'?'!':'•'} ${st.txt}</span></div>
+        <div class="acts">
+          <button class="btn" data-proof="${p.id}">Show proof</button>
+          <button class="btn-ghost" data-adddoc="${p.id}">+ Add document</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function vPetList(){
+  const c = effOwnerUser();
+  return `<button class="link back" id="b">← back to my people</button>
+    <div class="banner">You're managing records for <b>${c.name}</b> — with their consent.</div>
+    <h2>${c.name}'s pets</h2>
+    ${petListHtml(c.id)}
+    <button class="btn btn-lg" id="addpet" style="margin-top:8px">+ Add a pet for ${c.name.split(' ')[0]}</button>`;
+}
+
+/* --- Add pet --- */
+function vAddPet(){
+  return `<button class="link back" id="b">← back</button>
+    <div class="card">
+      <h2>Add a pet</h2>
+      <label>Pet's name</label><input id="nm" placeholder="e.g. Biscuit">
+      <label>Type</label>
+      <select id="sp"><option>Dog</option><option>Cat</option><option>Other</option></select>
+      <label>Photo (optional)</label><input type="file" id="ph" accept="image/*">
+      <div id="prev"></div>
+      <button class="btn btn-lg" id="save" style="margin-top:16px">Save pet</button>
+    </div>`;
+}
+
+/* --- Add document --- */
+function vAddDoc(){
+  const p = pets()[ctx.petId];
+  return `<button class="link back" id="b">← back</button>
+    <div class="card">
+      <h2>Add a vaccination document for ${p.name}</h2>
+      <p class="sub">A photo or PDF of the record — e.g. a rabies certificate.</p>
+      <label>What is it?</label>
+      <input id="label" placeholder="e.g. Rabies (3-year)">
+      <div class="row">
+        <div><label>Date given</label><input type="date" id="date"></div>
+        <div><label>Next due (optional)</label><input type="date" id="exp"></div>
+      </div>
+      <label>Where did it come from?</label>
+      <select id="src">
+        <option>Uploaded by owner</option>
+        <option>Riverside Vet Clinic</option>
+        <option>Kamloops Animal Hospital</option>
+        <option>Same Sky Collective</option>
+      </select>
+      <label>The document (photo or PDF)</label>
+      <input type="file" id="file" accept="image/*,application/pdf">
+      <div id="prev"></div>
+      <button class="btn btn-lg" id="save" style="margin-top:16px">Save document</button>
+      <hr style="border:none;border-top:1px solid var(--line);margin:18px 0">
+      <button class="btn-line btn-lg" id="reqvet">Request records from a vet clinic instead</button>
+      <p class="note">Two Kamloops clinics can send records straight to this account — handy if the paperwork is lost.</p>
+    </div>`;
+}
+
+/* --- Proof sheet (the screen shown at intake) --- */
+function vProof(){
+  const p = pets()[ctx.petId]; const owner = users()[p.ownerId]; const ds = docsOf(p.id);
+  const verified = ds.some(d=> d.source && /vet|hospital|clinic/i.test(d.source));
+  return `<button class="link back no-print" id="b">← back</button>
+  <div class="card" id="proofSheet">
+    <div class="doc-head">
+      <div class="brand">
+        <svg viewBox="0 0 64 64" width="26" height="26" fill="currentColor">
+          <ellipse cx="20" cy="22" rx="6.5" ry="9"/><ellipse cx="44" cy="22" rx="6.5" ry="9"/>
+          <ellipse cx="11" cy="38" rx="6" ry="8"/><ellipse cx="53" cy="38" rx="6" ry="8"/>
+          <path d="M32 33c-9 0-16 7.5-16 15 0 5 4 8 9 8 3.5 0 5-1.6 7-1.6s3.5 1.6 7 1.6c5 0 9-3 9-8 0-7.5-7-15-16-15z"/>
+        </svg> Paw Print
+      </div>
+      <div style="text-align:right;font-size:12px;color:var(--muted)">Vaccination proof<br>${new Date().toLocaleDateString('en-CA')}</div>
+    </div>
+    ${verified?`<div style="margin-bottom:12px"><span class="verified">✓ Includes a vet-clinic record</span></div>`:''}
+    <div class="kv"><b>Owner</b><span>${owner.name}</span></div>
+    <div class="kv"><b>Pet</b><span>${p.name} · ${p.species}</span></div>
+    <h2 style="margin:16px 2px 4px">Records</h2>
+    ${ds.length? ds.map(d=>`
+      <div class="vax">
+        <div class="t"><b>${d.label||'Vaccination'}</b>${d.source?`<span class="src">${d.source}</span>`:''}</div>
+        <div style="color:var(--muted);font-size:13.5px;margin-top:4px">
+          ${d.date?'Given '+d.date:''}${d.expiry?' · due '+d.expiry:''}
+        </div>
+        <div class="docimg">${d.fileType==='pdf'
+          ? `<iframe src="${d.dataUrl}"></iframe>`
+          : `<img src="${d.dataUrl}" alt="${d.label}">`}</div>
+      </div>`).join('') : `<div class="empty">No documents on file yet.</div>`}
+    <p class="note" style="margin-top:14px">Shown for shelter / supported-housing intake. Kept by ${owner.name} with Paw Print.</p>
+  </div>
+  ${ds.length?`<button class="btn btn-lg no-print" id="print">🖨 Print / save this page</button>`:''}`;
+}
+
+/* ---------- wiring ---------- */
+function wire(){
+  const $=(s)=>app().querySelector(s); const $$=(s)=>app().querySelectorAll(s);
+
+  // landing
+  $$('[data-role]').forEach(b=> b.onclick=()=> go('landing',{intendedRole:b.dataset.role}));
+  if($('#b')) $('#b').onclick = ()=>{
+    if(view==='landing') go('landing',{intendedRole:null});
+    else if(view==='petList') go('helperHome');
+    else if(['addPet','addDoc','proof'].includes(view)) go(ctx.clientId?'petList':'ownerHome');
+    else if(view==='addPerson') go('helperHome');
+    else go('landing');
+  };
+  $$('[data-login]').forEach(b=> b.onclick=()=>{
+    setSession(b.dataset.login);
+    go(me().role==='owner'?'ownerHome':'helperHome');
+  });
+  if($('#new')){ $('#new').onclick=()=>{
+    const role=ctx.intendedRole; const name=prompt(role==='owner'?'Your name:':'Your name:');
+    if(!name) return; const id=uid(); const u=users();
+    u[id]={id,name,role,org: role==='helper'?'Same Sky Collective':undefined};
+    store.set('users',u); setSession(id); go(role==='owner'?'ownerHome':'helperHome');
+  };}
+
+  // owner / helper home
+  if($('#addpet')) $('#addpet').onclick=()=> go('addPet');
+  if($('#addperson')) $('#addperson').onclick=()=> go('addPerson');
+  $$('[data-client]').forEach(el=> el.onclick=()=> go('petList',{clientId:el.dataset.client}));
+
+  // add person
+  if(view==='addPerson' && $('#save')) $('#save').onclick=()=>{
+    const name=$('#pname').value.trim(); if(!name){alert('Please enter a name.');return;}
+    if(!$('#consent').checked){alert('Please confirm consent to continue.');return;}
+    const id=uid(); const u=users(); u[id]={id,name,role:'owner',recoveryHelper:me().name};
+    store.set('users',u); const ls=links(); ls.push({helperId:me().id,clientId:id}); store.set('links',ls);
+    go('petList',{clientId:id});
+  };
+
+  // pet list actions
+  $$('[data-proof]').forEach(b=> b.onclick=()=> go('proof',{petId:b.dataset.proof}));
+  $$('[data-adddoc]').forEach(b=> b.onclick=()=> go('addDoc',{petId:b.dataset.adddoc}));
+
+  // add pet
+  if(view==='addPet'){
+    if($('#ph')) $('#ph').onchange=(e)=> readFile(e,(r)=>{ pendingFile={dataUrl:r}; $('#prev').innerHTML=`<div class="preview"><img src="${r}"></div>`; });
+    if($('#save')) $('#save').onclick=()=>{
+      const nm=$('#nm').value.trim(); if(!nm){alert('Please enter a name.');return;}
+      const id=uid(); const ps=pets();
+      ps[id]={id, ownerId:effOwner(), name:nm, species:$('#sp').value, photo:pendingFile?pendingFile.dataUrl:null};
+      store.set('pets',ps); go(ctx.clientId?'petList':'ownerHome');
+    };
+  }
+
+  // add doc
+  if(view==='addDoc'){
+    if($('#file')) $('#file').onchange=(e)=> readFile(e,(r,isPdf)=>{
+      pendingFile={dataUrl:r, fileType:isPdf?'pdf':'image'};
+      $('#prev').innerHTML=`<div class="preview">${isPdf?`<iframe src="${r}"></iframe>`:`<img src="${r}">`}</div>`;
+    });
+    if($('#reqvet')) $('#reqvet').onclick=()=> alert("Request sent (demo).\n\nIn the real app, the clinic gets a secure request and sends the record straight into this account.");
+    if($('#save')) $('#save').onclick=()=>{
+      if(!pendingFile){alert('Please choose a photo or PDF first.');return;}
+      const id=uid(); const dd=docs();
+      dd[id]={id, petId:ctx.petId, label:$('#label').value.trim()||'Vaccination',
+        date:$('#date').value, expiry:$('#exp').value, source:$('#src').value,
+        fileType:pendingFile.fileType, dataUrl:pendingFile.dataUrl};
+      store.set('docs',dd); go(ctx.clientId?'petList':'ownerHome');
+    };
+  }
+
+  // proof
+  if($('#print')) $('#print').onclick=()=> window.print();
+}
+
+function readFile(e, cb){
+  const f=e.target.files[0]; if(!f) return;
+  const isPdf=/pdf/i.test(f.type);
+  const r=new FileReader(); r.onload=()=>cb(r.result, isPdf); r.readAsDataURL(f);
+}
+
+/* ---------- boot ---------- */
+seed(); setSession(null); render();
+</script>
+</body>
+</html>
